@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Path - Financial Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>POCKET PATH</h1>
+                <p>BTECH CS Project Ecosystem</p>
+            </div>
+            {% if current_user.is_authenticated %}
+            <div>
+                <span style="margin-right: 15px;">Welcome, <strong>{{ current_user.username }}</strong></span>
+                <a href="/logout" style="color: #ff5e6c; text-decoration: none; font-weight: bold;">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="feature-note" style="border-color: var(--danger); margin-bottom: 20px;">
+            {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% if auth_mode == 'login' %}
+        <div class="card" style="max-width: 450px; margin: 50px auto;">
+            <h2>Account Sign-In</h2>
+            <form action="/login" method="POST">
+                <label>Username</label>
+                <input type="text" name="username" required autocomplete="off">
+                <label>Password</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+            <p style="margin-top: 15px; text-align: center; font-size: 0.9rem;">New account needed? <a
+                    href="/register">Register here</a></p>
+        </div>
+        {% elif auth_mode == 'register' %}
+        <div class="card" style="max-width: 450px; margin: 50px auto;">
+            <h2>Register New Account</h2>
+            <form action="/register" method="POST">
+                <label>Choose Username</label>
+                <input type="text" name="username" required autocomplete="off">
+                <label>Secure Password</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="btn btn-accent">Create Secure Account</button>
+            </form>
+            <p style="margin-top: 15px; text-align: center; font-size: 0.9rem;">Already possess an account? <a
+                    href="/login">Login here</a></p>
+        </div>
+        {% else %}
+        {% block content %}{% endblock %}
+        {% endif %}
+    </main>
+</body>
+
+</html>
