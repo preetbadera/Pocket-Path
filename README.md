@@ -4,7 +4,7 @@
 
 Pocket Path is a full-stack web application built with Python and Flask that helps users manage their personal finances efficiently. Users can track income, expenses, account balance, recurring payments, and download transaction records through a clean and responsive interface.
 
-![Dashboard](dashboard.png)
+![Dashboard](screenshots/dashboard.png)
 
 ---
 
@@ -98,16 +98,15 @@ Users can:
 The application automatically processes recurring payments based on predefined schedules, reducing manual tracking efforts.
 
 ---
-## Screenshots
 <h2>📸 More Screenshots</h2>
 
 <p align="center">
-  <img src="autopay.png" width="45%">
-  <img src="Register.png" width="45%">
+  <img src="screenshots/autopay.png" width="45%">
+  <img src="screenshots/Register.png" width="45%">
 </p>
 
 <p align="center">
-  <img src="Sign-in.png" width="45%">
+  <img src="screenshots/Sign-in.png" width="45%">
 </p>
 
 ---
