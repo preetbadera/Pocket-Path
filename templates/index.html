@@ -1,0 +1,139 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="card summary-card text-center">
+        <h3>Total Deposits</h3>
+        <p class="amt deposit-text">₹{{ "%.2f"|format(deposit) }}</p>
+    </div>
+    <div class="card summary-card text-center">
+        <h3>Total Expenses</h3>
+        <p class="amt expense-text">₹{{ "%.2f"|format(expense) }}</p>
+    </div>
+    <div class="card summary-card text-center">
+        <h3>Remaining Balance</h3>
+        <p class="amt balance-text">₹{{ "%.2f"|format(balance) }}</p>
+    </div>
+</div>
+
+<div class="action-grid">
+    <div class="card">
+        <h2>Log Transaction</h2>
+        <form action="/add_transaction" method="POST">
+            <label>Transaction Type</label>
+            <select name="type" required>
+                <option value="Expense">Expense (Debit)</option>
+                <option value="Deposit">Deposit (Credit)</option>
+            </select>
+            <label>Category</label>
+            <input type="text" name="category" placeholder="e.g., Food, Salary" required>
+            <label>Amount (INR)</label>
+            <input type="number" step="0.01" name="amount" placeholder="0.00" required>
+            <label>Date</label>
+            <input type="date" name="date">
+            <label>Description</label>
+            <input type="text" name="description" placeholder="Optional notes">
+            <button type="submit" class="btn btn-primary">Commit Transaction</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Configure Smart Autopay / EMI</h2>
+        <p class="feature-note">Automatically schedules and logs payments on their exact due dates.</p>
+        <form action="/add_autopay" method="POST">
+            <label>Mandate Name / EMI Title</label>
+            <input type="text" name="title" placeholder="e.g., Car Loan, Netflix" required>
+            <label>Category</label>
+            <input type="text" name="category" placeholder="e.g., Automobile" required>
+            <label>Amount per Cycle (INR)</label>
+            <input type="number" step="0.01" name="amount" placeholder="0.00" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" required>
+                </div>
+                <div>
+                    <label>Billing Cycle Frequency</label>
+                    <select name="frequency">
+                        <option value="Monthly">Monthly Cycle</option>
+                        <option value="Yearly">Yearly Cycle</option>
+                    </select>
+                </div>
+            </div>
+            <label>Duration Limit (Total Installments)</label>
+            <input type="number" name="duration" placeholder="e.g., 12" min="1" required>
+            <button type="submit" class="btn btn-accent">Establish Autopay Order</button>
+        </form>
+
+        <h3 style="margin-top: 25px; margin-bottom: 10px;">Active Pipelines</h3>
+        <table style="font-size: 0.85rem;">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Interval</th>
+                    <th>Progress</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rule in autopays %}
+                <tr>
+                    <td><strong>{{ rule.title }}</strong><br><small>₹{{ rule.amount }}</small></td>
+                    <td>{{ rule.frequency }}<br><small>From: {{ rule.start_date }}</small></td>
+                    <td>
+                        {{ rule.cycles_processed }} / {{ rule.duration_cycles }} Paid
+                        {% if rule.cycles_processed >= rule.duration_cycles %}
+                        <br><span class="badge badge-deposit">Completed</span>
+                        {% else %}
+                        <br><span class="badge badge-expense">Active</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/delete_autopay/{{ rule.id }}"
+                            style="color: var(--danger); text-decoration: none;">Cancel</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card data-card">
+    <div class="table-header">
+        <h2>Transaction History & Audit Ledger</h2>
+        <a href="/download_statement" class="btn btn-download">Download Ledger (.CSV)</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Notes / Source</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trans in transactions %}
+            <tr>
+                <td>{{ trans.date }}</td>
+                <td><span
+                        class="badge {% if trans.type == 'Deposit' %}badge-deposit{% else %}badge-expense{% endif %}">{{
+                        trans.type }}</span></td>
+                <td>{{ trans.category }}</td>
+                <td class="{% if trans.type == 'Deposit' %}deposit-text{% else %}expense-text{% endif %}">
+                    {% if trans.type == 'Expense' %}-{% endif %}₹{{ "%.2f"|format(trans.amount) }}
+                </td>
+                <td>{{ trans.description }}</td>
+                <td><a href="/delete/{{ trans.id }}" class="delete-link"
+                        onclick="return confirm('Are you sure you want to delete this record?');">Delete</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">No transactions recorded inside tracking ledger database.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
